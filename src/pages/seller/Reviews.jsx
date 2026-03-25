@@ -52,7 +52,7 @@ export default function SellerReviews() {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 56, fontWeight: 700, color: 'var(--gray-900)' }}>{avg}</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 2, color: 'var(--amber)', fontSize: 22 }}>
-                {[1,2,3,4,5].map(n => <span key={n}>{n <= Math.round(avg) ? '*': '*'}</span>)}
+                {[1,2,3,4,5].map(n => <span key={n}>{n <= Math.round(avg) ? 'â˜...' : 'â˜†'}</span>)}
               </div>
               <div className="text-muted text-sm mt-4">{reviews.length} reviews</div>
             </div>
@@ -60,7 +60,7 @@ export default function SellerReviews() {
               {dist.map(({ n, count, pct }) => (
                 <div key={n} className="flex-align gap-8" style={{ marginBottom: 6 }}>
                   <span style={{ width: 16, fontSize: 13, textAlign: 'right', flexShrink: 0 }}>{n}</span>
-                  <span style={{ color: 'var(--amber)', flexShrink: 0 }}>*</span>
+                  <span style={{ color: 'var(--amber)', flexShrink: 0 }}>â˜...</span>
                   <div style={{ flex: 1, height: 8, background: 'var(--gray-200)', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ width: `${pct}%`, height: '100%', background: 'var(--amber)', borderRadius: 4, transition: 'width .4s' }} />
                   </div>
@@ -76,7 +76,7 @@ export default function SellerReviews() {
               <div key={r.id} style={{ padding: '16px 20px', borderBottom: i < reviews.length - 1 ? '1px solid var(--gray-100)' : 'none' }}>
                 <div className="flex-between" style={{ marginBottom: 10 }}>
                   <div className="flex-align gap-10">
-                    <Avatar name={r.users?.name} size="sm" src={customer?.avatar_url} />
+                    <Avatar name={r.users?.name} size="sm"  />
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 14 }}>{r.users?.name}</div>
                       <div
@@ -91,7 +91,7 @@ export default function SellerReviews() {
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 1 }}>
                       {[1,2,3,4,5].map(n => (
-                        <span key={n} style={{ fontSize: 16, color: n <= r.rating ? 'var(--amber)' : 'var(--gray-200)' }}>*</span>
+                        <span key={n} style={{ fontSize: 16, color: n <= r.rating ? 'var(--amber)' : 'var(--gray-200)' }}>â˜...</span>
                       ))}
                     </div>
                     <div className="text-xs text-muted mt-4">{formatDate(r.created_at)}</div>
