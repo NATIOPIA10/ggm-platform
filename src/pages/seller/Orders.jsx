@@ -87,8 +87,10 @@ export default function SellerOrders() {
 
                     {/* Customer info */}
                     <div className="flex-align gap-8 mt-8">
-                      <Avatar name={customer?.name} size="sm" />
+                      <Avatar name={customer?.name} size="sm" src={customer?.avatar_url} /> 
+                      
                       <div>
+                       
                         <div style={{ fontWeight: 500, fontSize: 13 }}>{customer?.name}</div>
                         <div className="text-xs text-muted">{order.phone}</div>
                       </div>

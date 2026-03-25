@@ -59,7 +59,7 @@ export default function AdminProducts() {
     <div>
       <div className="page-header">
         <h1>Product Management</h1>
-        <p>{products.length} total Â· {products.filter(p => p.status === 'pending').length} pending review</p>
+        <p>{products.length} total · {products.filter(p => p.status === 'pending').length} pending review</p>
       </div>
 
       <div className="flex-align gap-10 mb-16" style={{ flexWrap: 'wrap' }}>
