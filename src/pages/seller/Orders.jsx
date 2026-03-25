@@ -82,13 +82,12 @@ export default function SellerOrders() {
                       {items.map(i => i.products?.title).join(', ') || 'Order'}
                     </div>
                     <div className="text-muted text-sm" style={{ marginTop: 2 }}>
-                      #{order.id.slice(0, 8).toUpperCase()} Â· {formatDate(order.created_at)}
+                      #{order.id.slice(0, 8).toUpperCase()}  {formatDate(order.created_at)}
                     </div>
 
                     {/* Customer info */}
                     <div className="flex-align gap-8 mt-8">
                       <Avatar name={customer?.name} size="sm" src={customer?.avatar_url} /> 
-                      
                       <div>
                        
                         <div style={{ fontWeight: 500, fontSize: 13 }}>{customer?.name}</div>
