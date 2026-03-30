@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { IconDashboard, IconUsers, IconStore, IconTag, IconFolder, IconPackage, IconUser } from '../../components/shared/Icons'
+import { IconDashboard, IconUsers, IconStore, IconTag, IconFolder, IconPackage, IconUser, IconMessage } from '../../components/shared/Icons'
 import MobileTabs from '../../components/layout/MobileTabs'
 import AdminOverview   from './Overview'
 import ProfilePage     from '../shared/ProfilePage'
@@ -9,6 +9,7 @@ import AdminSellers    from './Sellers'
 import AdminProducts   from './Products'
 import AdminCategories from './Categories'
 import AdminOrders     from './Orders'
+import AdminFeedback   from './Feedback'
 
 const NAV = [
   { path: '',           label: 'Overview',   Icon: IconDashboard },
@@ -18,6 +19,7 @@ const NAV = [
   { path: 'products',   label: 'Products',   Icon: IconTag       },
   { path: 'categories', label: 'Categories', Icon: IconFolder    },
   { path: 'orders',     label: 'Orders',     Icon: IconPackage   },
+  { path: 'feedback',   label: 'Feedback',   Icon: IconMessage   },
 ]
 
 export default function AdminDashboard() {
@@ -60,6 +62,7 @@ export default function AdminDashboard() {
             <Route path="products"    element={<AdminProducts />} />
             <Route path="categories"  element={<AdminCategories />} />
             <Route path="orders"      element={<AdminOrders />} />
+          <Route path="feedback"    element={<AdminFeedback />} />
           </Routes>
         </div>
       </div>

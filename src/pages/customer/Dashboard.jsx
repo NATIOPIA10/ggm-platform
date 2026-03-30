@@ -6,8 +6,9 @@ import CustomerOrders    from './Orders'
 import CustomerFavorites from './Favorites'
 import CustomerMessages  from './Messages'
 import CustomerReviews   from './Reviews'
+import FeedbackHistory   from '../shared/FeedbackHistory'
 import MobileTabs from '../../components/layout/MobileTabs'
-import { IconHome, IconUser, IconPackage, IconHeart, IconMessage, IconStar } from '../../components/shared/Icons'
+import { IconHome, IconUser, IconPackage, IconHeart, IconMessage, IconStar, IconFilter } from '../../components/shared/Icons'
 
 const NAV = [
   { path: '',          label: 'Home',      Icon: IconHome    },
@@ -56,6 +57,7 @@ export default function CustomerDashboard() {
             <Route path="messages"    element={<CustomerMessages />} />
             <Route path="messages/:threadId" element={<CustomerMessages />} />
             <Route path="reviews"     element={<CustomerReviews />} />
+          <Route path="feedback"    element={<FeedbackHistory />} />
           </Routes>
         </div>
       </div>

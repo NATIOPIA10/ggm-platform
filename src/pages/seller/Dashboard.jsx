@@ -3,13 +3,14 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { Spinner } from '../../components/shared'
 import MobileTabs from '../../components/layout/MobileTabs'
-import { IconChart, IconTag, IconPackage, IconMessage, IconStar, IconShield, IconUser } from '../../components/shared/Icons'
+import { IconChart, IconTag, IconPackage, IconMessage, IconStar, IconShield, IconUser, IconFilter } from '../../components/shared/Icons'
 import SellerOverview  from './Overview'
 import ProfilePage     from '../shared/ProfilePage'
 import SellerProducts  from './Products'
 import SellerOrders    from './Orders'
 import SellerMessages  from './Messages'
 import SellerReviews   from './Reviews'
+import FeedbackHistory from '../shared/FeedbackHistory'
 
 const NAV = [
   { path: '',          label: 'Overview',  Icon: IconChart   },
@@ -18,6 +19,7 @@ const NAV = [
   { path: 'orders',    label: 'Orders',    Icon: IconPackage },
   { path: 'messages',  label: 'Messages',  Icon: IconMessage },
   { path: 'reviews',   label: 'Reviews',   Icon: IconStar    },
+  { path: 'feedback',  label: 'My Feedback',Icon: IconFilter  },
 ]
 
 export default function SellerDashboard() {
@@ -62,11 +64,8 @@ export default function SellerDashboard() {
           <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--gray-100)', marginBottom: 8 }}>
             <div style={{ fontWeight: 700, fontSize: 13 }}>{org.name}</div>
             {org.verified && (
-              <div style={{ fontSize: 12, color: '#1e8e3e', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24">
-                  <path fill="#1e8e3e" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                </svg>
-                Verified Seller
+              <div style={{ fontSize: 12, color: 'var(--brand)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <IconShield width={12} height={12} /> Verified Seller
               </div>
             )}
           </div>
@@ -95,6 +94,7 @@ export default function SellerDashboard() {
             <Route path="messages" element={<SellerMessages />} />
             <Route path="messages/:threadId" element={<SellerMessages />} />
             <Route path="reviews"  element={<SellerReviews />} />
+          <Route path="feedback" element={<FeedbackHistory />} />
           </Routes>
         </div>
       </div>

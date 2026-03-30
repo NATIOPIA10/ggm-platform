@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import Navbar from './components/layout/Navbar'
 import MobileNav from './components/layout/MobileNav'
+import FeedbackButton from './components/shared/FeedbackButton'
 import Home from './pages/Home'
 import Search from './pages/Search'
 import ProductDetail from './pages/ProductDetail'
@@ -53,6 +54,7 @@ function AppRoutes() {
         </Routes>
       </div>
       <MobileNav />
+      <FeedbackButton />
     </>
   )
 }
