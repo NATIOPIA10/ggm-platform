@@ -84,7 +84,7 @@ export default function AdminUsers() {
                 <tr key={u.id}>
                   <td>
                     <div className="flex-align gap-8">
-                      <Avatar name={u.name} size="sm"  src={selected.users?.avatar_url} />
+                      <Avatar name={u.name} size="sm"  />
                       <span style={{ fontWeight: 500 }}>{u.name}</span>
                     </div>
                   </td>
