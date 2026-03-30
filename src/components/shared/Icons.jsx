@@ -36,4 +36,3 @@ export function IconDashboard(p)   { return <svg {...defaultProps} {...p} viewBo
 export function IconSend(p)        { return <svg {...defaultProps} {...p} viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> }
 export function IconClock(p)       { return <svg {...defaultProps} {...p} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> }
 export function IconFilter(p)      { return <svg {...defaultProps} {...p} viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> }
-export function IconFilter(p) { return <svg {...{width:18,height:18,stroke:'currentColor',fill:'none',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',...p}} viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> }
