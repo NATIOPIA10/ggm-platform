@@ -250,7 +250,9 @@ export default function Auth() {
         })
       })
 
-      if (response.ok) {
+      const responseText = await response.text()
+console.log('EmailJS response:', response.status, responseText)
+if (response.ok) {
         setOtpSent(true)
         setCountdown(300) // 5 minutes
         toast('OTP sent to ' + email, 'success')
