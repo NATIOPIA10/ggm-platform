@@ -9,6 +9,8 @@ import Home from './pages/Home'
 import Search from './pages/Search'
 import ProductDetail from './pages/ProductDetail'
 import Auth from './pages/Auth'
+import AuthCallback from './pages/AuthCallback'
+import RoleSelect  from './pages/RoleSelect'
 import CustomerDashboard from './pages/customer/Dashboard'
 import SellerDashboard from './pages/seller/Dashboard'
 import AdminDashboard from './pages/admin/Dashboard'
@@ -46,7 +48,9 @@ function AppRoutes() {
           <Route path="/"            element={<Home />} />
           <Route path="/search"      element={<Search />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/auth"        element={<Auth />} />
+          <Route path="/auth"           element={<Auth />} />
+          <Route path="/auth/callback"  element={<AuthCallback />} />
+          <Route path="/auth/role"      element={<RoleSelect />} />
           <Route path="/customer/*"  element={<RequireAuth><CustomerDashboard /></RequireAuth>} />
           <Route path="/seller/*"    element={<RequireRole role="seller"><SellerDashboard /></RequireRole>} />
           <Route path="/admin/*"     element={<RequireRole role="admin"><AdminDashboard /></RequireRole>} />

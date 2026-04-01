@@ -83,6 +83,50 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  async function signInWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/auth/callback',
+        queryParams: { access_type: 'offline', prompt: 'consent' },
+      },
+    })
+    if (error) throw error
+  }
+
+  // Called after Google OAuth to create profile if new user
+  async function handleGoogleUser(authUser) {
+    if (!authUser) return null
+    // Check if profile exists
+    const { data: existing } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_id', authUser.id)
+      .single()
+    if (existing) return { profile: existing, isNew: false }
+
+    // New Google user - create profile without role (will be set on RoleSelect page)
+    const name     = authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User'
+    const avatar   = name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    const avatarUrl = authUser.user_metadata?.avatar_url || null
+
+    const { data: prof, error } = await supabase
+      .from('users')
+      .insert({
+        auth_id:    authUser.id,
+        name,
+        email:      authUser.email,
+        city:       'Addis Ababa',
+        role:       'customer',  // default, user will change on RoleSelect
+        avatar,
+        avatar_url: avatarUrl,
+      })
+      .select()
+      .single()
+    if (error) throw error
+    return { profile: prof, isNew: true }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
     setUser(null)
@@ -108,6 +152,8 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    signInWithGoogle,
+    handleGoogleUser,
     updateProfile,
     refetchProfile: () => fetchProfile(user),
   }
