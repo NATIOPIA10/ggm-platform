@@ -175,7 +175,7 @@ export async function getCustomerOrders(userId) {
 export async function getSellerOrders(sellerId) {
   const { data, error } = await supabase
     .from('orders')
-    .select('*, order_items(*, products(title, images)), users!user_id(name, avatar, avatar_url)')
+    .select('*, order_items(*, products(title, images)), users!user_id(name, avatar)')
     .eq('seller_id', sellerId)
     .order('created_at', { ascending: false })
   if (error) throw error
@@ -193,13 +193,34 @@ export async function updateOrderStatus(orderId, status) {
   return data
 }
 
-export async function getAllOrders() {
-  const { data, error } = await supabase
+export async function getAllOrders({ status, sellerId, search } = {}) {
+  let q = supabase
     .from('orders')
-    .select('*, order_items(*, products(title)), customer:users!user_id(name), seller:users!seller_id(name)')
+    .select(`
+      *,
+      order_items(*, products(title, images)),
+      customer:users!user_id(name, email, avatar, avatar_url),
+      seller:users!seller_id(name, email, avatar, avatar_url),
+      organizations!seller_id(name)
+    `)
     .order('created_at', { ascending: false })
+
+  if (status)   q = q.eq('status', status)
+  if (sellerId) q = q.eq('seller_id', sellerId)
+
+  const { data, error } = await q
   if (error) throw error
   return data || []
+}
+
+export async function adminUpdateOrderStatus(orderId, status) {
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ status })
+    .eq('id', orderId)
+    .select()
+  if (error) throw error
+  return data?.[0]
 }
 
 // ═══════════════════════════════════════════════
