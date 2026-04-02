@@ -193,7 +193,17 @@ export default function Auth() {
   if (loading) return null
 
   // ── LOGIN ──────────────────────────────────
-  async function handleLogin(e) {
+  async function handleGoogle() {
+  setGoogleLoading(true)
+  try {
+    await signInWithGoogle()
+  } catch (err) {
+    toast(err.message || 'Google sign in failed', 'error')
+    setGoogleLoading(false)
+  }
+}
+
+async function handleLogin(e) {
     e.preventDefault()
     const errs = {}
     if (!loginEmail)    errs.email    = 'Email is required'
