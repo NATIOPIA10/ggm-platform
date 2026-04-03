@@ -200,8 +200,7 @@ export async function getAllOrders({ status, sellerId, search } = {}) {
       *,
       order_items(*, products(title, images)),
       customer:users!user_id(name, email, avatar, avatar_url),
-      seller:users!seller_id(name, email, avatar, avatar_url),
-      organizations!seller_id(name)
+      seller:users!seller_id(name, email, avatar, avatar_url, organizations(name))
     `)
     .order('created_at', { ascending: false })
 

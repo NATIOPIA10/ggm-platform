@@ -44,7 +44,7 @@ export default function AdminOrders() {
     }
   }
 
-  const sellers = [...new Map(orders.map(o => [o.seller_id, { id: o.seller_id, name: o.organizations?.name || o.seller?.name }])).values()]
+  const sellers = [...new Map(orders.map(o => [o.seller_id, { id: o.seller_id, name: o.seller?.organizations?.name || o.seller?.name }])).values()]
 
   const filtered = orders
     .filter(o => filter === 'all' || o.status === filter)
@@ -166,7 +166,7 @@ export default function AdminOrders() {
                           </div>
                         </td>
                         <td>
-                          <div style={{ fontWeight: 500, fontSize: 13 }}>{o.organizations?.name || o.seller?.name || '-'}</div>
+                          <div style={{ fontWeight: 500, fontSize: 13 }}>{o.seller?.organizations?.name || o.seller?.name || '-'}</div>
                           <div className="text-xs text-muted">{o.seller?.email}</div>
                         </td>
                         <td className="text-sm">{item?.products?.title || '-'}</td>
@@ -240,9 +240,9 @@ export default function AdminOrders() {
               <div style={{ marginBottom: 14, padding: 14, background: 'var(--gray-50)', borderRadius: 10 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>Seller</div>
                 <div className="flex-align gap-10">
-                  <Avatar name={selected.organizations?.name || selected.seller?.name} size="md" src={selected.seller?.avatar_url} />
+                  <Avatar name={selected.seller?.organizations?.name || selected.seller?.name} size="md" src={selected.seller?.avatar_url} />
                   <div>
-                    <div style={{ fontWeight: 600 }}>{selected.organizations?.name || selected.seller?.name}</div>
+                    <div style={{ fontWeight: 600 }}>{selected.seller?.organizations?.name || selected.seller?.name}</div>
                     <div className="text-xs text-muted">{selected.seller?.email}</div>
                   </div>
                 </div>
