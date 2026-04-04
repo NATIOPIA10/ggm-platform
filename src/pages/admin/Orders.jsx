@@ -47,7 +47,11 @@ export default function AdminOrders() {
   const sellers = [...new Map(orders.map(o => [o.seller_id, { id: o.seller_id, name: o.seller?.organizations?.name || o.seller?.name }])).values()]
 
   const filtered = orders
-    .filter(o => filter === 'all' || o.status === filter)
+    .filter(o => {
+  if (filter === 'escalated') return o.escalated === true
+  if (filter === 'all') return true
+  return o.status === filter
+})
     .filter(o => sellerFilter === 'all' || o.seller_id === sellerFilter)
     .filter(o => {
       if (!search) return true
@@ -195,6 +199,28 @@ export default function AdminOrders() {
               </table>
             </div>
           </div>
+          
+{selected.escalated && (
+  <div style={{ marginBottom: 16, padding: 12, background: 'var(--red-light)', borderRadius: 8, borderLeft: '4px solid var(--red)' }}>
+    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', marginBottom: 4 }}>Seller Requested Help</div>
+    <div style={{ fontSize: 13 }}>{selected.escalation_note}</div>
+    <div className="text-xs text-muted mt-4">{formatDate(selected.escalated_at)}</div>
+  </div>
+)}
+
+<button
+  className={`tab-item ${filter === 'escalated' ? 'tab-active' : ''}`}
+  onClick={() => setFilter('escalated')}
+  style={{ color: 'var(--red)' }}
+>
+  Needs Attention
+  {orders.filter(o => o.escalated && o.status !== 'resolved').length > 0 && (
+    <span style={{ marginLeft: 6, background: 'var(--red)', color: 'white', fontSize: 11, padding: '1px 6px', borderRadius: 10, fontWeight: 700 }}>
+      {orders.filter(o => o.escalated && o.status !== 'resolved').length}
+    </span>
+  )}
+</button>
+
 
           {/* Detail panel */}
           {selected && (

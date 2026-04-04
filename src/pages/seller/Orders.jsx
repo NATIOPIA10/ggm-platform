@@ -130,7 +130,44 @@ export default function SellerOrders() {
                       {order.status === 'delivered' && (
                         <button className="btn btn-success btn-sm" onClick={() => handleAction(order.id, 'completed')}>Complete</button>
                       )}
+                      {!['completed','rejected'].includes(o.status) && (
+  <button
+    className="btn btn-ghost btn-sm"
+    style={{ color: 'var(--red)', borderColor: 'var(--red)', marginTop: 4 }}
+    onClick={() => {
+      const note = prompt('Describe the issue for admin:')
+      if (note) {
+        import('../../lib/api').then(({ sellerEscalateOrder }) => {
+          sellerEscalateOrder(o.id, note)
+            .then(() => { toast('Request sent to admin', 'success'); load() })
+            .catch(err => toast(err.message, 'error'))
+        })
+      }
+    }}
+  >
+    Request Admin Help
+  </button>
+)}
                     </div>
+                    {!['completed','rejected'].includes(o.status) && (
+  <button
+    className="btn btn-ghost btn-sm"
+    style={{ color: 'var(--red)', borderColor: 'var(--red)', marginTop: 4 }}
+    onClick={() => {
+      const note = prompt('Describe the issue for admin:')
+      if (note) {
+        import('../../lib/api').then(({ sellerEscalateOrder }) => {
+          sellerEscalateOrder(o.id, note)
+            .then(() => { toast('Request sent to admin', 'success'); load() })
+            .catch(err => toast(err.message, 'error'))
+        })
+      }
+    }}
+  >
+    Request Admin Help
+  </button>
+)}
+
                   </div>
                 </div>
               </div>
