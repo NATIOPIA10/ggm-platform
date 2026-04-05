@@ -125,13 +125,13 @@ export default function SellerOrders() {
                       {order.status === 'accepted' && (
                         <button className="btn btn-primary btn-sm" onClick={() => handleAction(order.id, 'processing')}>Mark Processing</button>
                       )}
-                      {o.status === 'processing' && (
-                        <button className="btn btn-success btn-sm" onClick={() => handleAction(o.id, 'delivered')}>Mark Delivered</button>
+                      {order.status === 'processing' && (
+                        <button className="btn btn-success btn-sm" onClick={() => handleAction(order.id, 'delivered')}>Mark Delivered</button>
                       )}
                       {order.status === 'delivered' && (
-                        <button className="btn btn-success btn-sm" onClick={() => handleAction(o.id, 'completed')}>Complete</button>
+                        <button className="btn btn-success btn-sm" onClick={() => handleAction(order.id, 'completed')}>Complete</button>
                       )}
-                      {!['completed','rejected'].includes(o.status) && !o.escalated && (
+                      {!['completed','rejected'].includes(order.status) && !order.escalated && (
                         <button
                           className="btn btn-sm"
                           style={{ color: 'var(--red)', border: '1px solid var(--red)', background: 'white', marginTop: 4 }}
@@ -139,7 +139,7 @@ export default function SellerOrders() {
                             const note = window.prompt('Describe the issue you need admin help with:')
                             if (!note) return
                             try {
-                              await sellerEscalateOrder(o.id, note)
+                              await sellerEscalateOrder(order.id, note)
                               toast('Request sent to admin', 'success')
                               load()
                             } catch (err) { toast(err.message, 'error') }
