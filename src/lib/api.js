@@ -213,17 +213,6 @@ export async function getAllOrders({ status, sellerId } = {}) {
   return data || []
 }
 
-export async function adminUpdateOrderStatus(orderId, status) {
-  const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select()
-  if (error) throw error
-  return data?.[0]
-}
-
-export async function sellerEscalateOrder(orderId, note) {
-  const { data, error } = await supabase.from('orders').update({ escalated: true, escalation_note: note, escalated_at: new Date().toISOString() }).eq('id', orderId).select()
-  if (error) throw error
-  return data?.[0]
-}
 
 
 
