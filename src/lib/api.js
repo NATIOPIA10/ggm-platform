@@ -196,27 +196,15 @@ export async function updateOrderStatus(orderId, status) {
 export async function getAllOrders({ status, sellerId } = {}) {
   let q = supabase
     .from('orders')
-    .select(`
-      *,
-      order_items(*, products(title, images)),
-      customer:users!user_id(name, email, avatar, avatar_url),
-      seller:users!seller_id(name, email, avatar, avatar_url)
-    `)
+    .select(`*, order_items(*, products(title, images)), customer:users!user_id(name, email, avatar, avatar_url), seller:users!seller_id(name, email, avatar, avatar_url)`)
     .order('created_at', { ascending: false })
-
   if (status)   q = q.eq('status', status)
   if (sellerId) q = q.eq('seller_id', sellerId)
-
   const { data, error } = await q
   if (error) throw error
-
-  // Fetch seller org names separately
   const sellerIds = [...new Set((data || []).map(o => o.seller_id))]
   if (sellerIds.length) {
-    const { data: orgs } = await supabase
-      .from('organizations')
-      .select('user_id, name, verified')
-      .in('user_id', sellerIds)
+    const { data: orgs } = await supabase.from('organizations').select('user_id, name, verified').in('user_id', sellerIds)
     if (orgs) {
       const orgMap = Object.fromEntries(orgs.map(o => [o.user_id, o]))
       return (data || []).map(o => ({ ...o, organization: orgMap[o.seller_id] || null }))
@@ -226,14 +214,18 @@ export async function getAllOrders({ status, sellerId } = {}) {
 }
 
 export async function adminUpdateOrderStatus(orderId, status) {
-  const { data, error } = await supabase
-    .from('orders')
-    .update({ status })
-    .eq('id', orderId)
-    .select()
+  const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select()
   if (error) throw error
   return data?.[0]
 }
+
+export async function sellerEscalateOrder(orderId, note) {
+  const { data, error } = await supabase.from('orders').update({ escalated: true, escalation_note: note, escalated_at: new Date().toISOString() }).eq('id', orderId).select()
+  if (error) throw error
+  return data?.[0]
+}
+
+
 
 export async function sellerEscalateOrder(orderId, note) {
   const { data, error } = await supabase

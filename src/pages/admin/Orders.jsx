@@ -44,28 +44,28 @@ export default function AdminOrders() {
     }
   }
 
-  const sellers = [...new Map(orders.map(o => [o.seller_id, { id: o.seller_id, name: o.seller?.organizations?.name || o.seller?.name }])).values()]
+  const sellers = [...new Map(orders.map(order => [order.seller_id, { id: order.seller_id, name: order.seller?.organizations?.name || order.seller?.name }])).values()]
 
   const filtered = orders
-    .filter(o => {
-  if (filter === 'escalated') return o.escalated === true
+    .filter(order => {
+  if (filter === 'escalated') return order.escalated === true
   if (filter === 'all') return true
-  return o.status === filter
+  return order.status === filter
 })
-    .filter(o => sellerFilter === 'all' || o.seller_id === sellerFilter)
-    .filter(o => {
+    .filter(order => sellerFilter === 'all' || order.seller_id === sellerFilter)
+    .filter(order => {
       if (!search) return true
       const q = search.toLowerCase()
       return (
-        o.id.toLowerCase().includes(q) ||
-        o.customer?.name?.toLowerCase().includes(q) ||
-        o.seller?.name?.toLowerCase().includes(q) ||
-        o.delivery_location?.toLowerCase().includes(q) ||
-        o.order_items?.[0]?.products?.title?.toLowerCase().includes(q)
+        order.id.toLowerCase().includes(q) ||
+        order.customer?.name?.toLowerCase().includes(q) ||
+        order.seller?.name?.toLowerCase().includes(q) ||
+        order.delivery_location?.toLowerCase().includes(q) ||
+        order.order_items?.[0]?.products?.title?.toLowerCase().includes(q)
       )
     })
 
-  const totalRevenue = orders.filter(o => o.status !== 'rejected').reduce((s, o) => s + Number(o.total_price), 0)
+  const totalRevenue = orders.filter(order => order.status !== 'rejected').reduce((s, o) => s + Number(o.total_price), 0)
 
   if (loading) return <Spinner />
 
@@ -95,7 +95,16 @@ export default function AdminOrders() {
             <div className="stat-label">{label}</div>
             <div style={{ fontSize: 24, fontWeight: 700, color }}>{orders.filter(o => o.status === s).length}</div>
           </div>
+          
         ))}
+        <div
+  className="stat-card"
+  style={{ cursor: 'pointer', borderBottom: filter === 'escalated' ? '3px solid var(--red)' : '3px solid transparent', transition: 'border-color .2s' }}
+  onClick={() => setFilter(filter === 'escalated' ? 'all' : 'escalated')}
+>
+  <div className="stat-label">Needs Attention</div>
+  <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--red)' }}>{orders.filter(o => o.escalated).length}</div>
+</div>
       </div>
 
       {/* Filters */}
@@ -128,7 +137,18 @@ export default function AdminOrders() {
         <EmptyState icon={<IconPackage width={48} height={48} />} title="No orders found" message="Try adjusting your filters" />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 380px' : '1fr', gap: 20, alignItems: 'start' }}>
-
+<button
+  className={`tab-item ${filter === 'escalated' ? 'tab-active' : ''}`}
+  onClick={() => setFilter('escalated')}
+  style={{ color: 'var(--red)' }}
+>
+  Needs Attention
+  {orders.filter(order => order.escalated && order.status !== 'resolved').length > 0 && (
+    <span style={{ marginLeft: 6, background: 'var(--red)', color: 'white', fontSize: 11, padding: '1px 6px', borderRadius: 10, fontWeight: 700 }}>
+      {orders.filter(order => order.escalated && order.status !== 'resolved').length}
+    </span>
+  )}
+</button>
           {/* Table */}
           <div className="card">
             <div className="table-wrap">
@@ -146,26 +166,26 @@ export default function AdminOrders() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(o => {
-                    const item = o.order_items?.[0]
+                  {filtered.map(orders => {
+                    const item = order.order_items?.[0]
                     const isSelected = selected?.id === o.id
                     return (
                       <tr
-                        key={o.id}
-                        onClick={() => setSelected(isSelected ? null : o)}
+                        key={order.id}
+                        onClick={() => setSelected(isSelected ? null : order)}
                         style={{ cursor: 'pointer', background: isSelected ? 'var(--brand-light)' : undefined }}
                       >
                         <td>
                           <span style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--gray-100)', padding: '2px 6px', borderRadius: 4, fontWeight: 600 }}>
-                            #{o.id.slice(0, 8).toUpperCase()}
+                            #{order.id.slice(0, 8).toUpperCase()}
                           </span>
                         </td>
                         <td>
                           <div className="flex-align gap-8">
-                            <Avatar name={o.customer?.name} size="sm" src={o.customer?.avatar_url} />
+                            <Avatar name={order.customer?.name} size="sm" src={order.customer?.avatar_url} />
                             <div>
                               <div style={{ fontWeight: 500, fontSize: 13 }}>{o.customer?.name || '-'}</div>
-                              {o.phone && <div className="text-xs text-muted">{o.phone}</div>}
+                              {order.phone && <div className="text-xs text-muted">{order.phone}</div>}
                             </div>
                           </div>
                         </td>
@@ -176,16 +196,16 @@ export default function AdminOrders() {
                         <td className="text-sm">{item?.products?.title || '-'}</td>
                         <td style={{ fontWeight: 700, color: 'var(--brand)' }}>{formatPrice(o.total_price)}</td>
                         <td>
-                          <span className={`badge badge-${orderStatusColor(o.status)}`} style={{ textTransform: 'capitalize' }}>
-                            {o.status}
+                          <span className={`badge badge-${orderStatusColor(order.status)}`} style={{ textTransform: 'capitalize' }}>
+                            {order.status}
                           </span>
                         </td>
-                        <td className="text-xs text-muted">{timeAgo(o.created_at)}</td>
+                        <td className="text-xs text-muted">{timeAgo(order.created_at)}</td>
                         <td onClick={e => e.stopPropagation()}>
                           <select
                             className="filter-select"
-                            value={o.status}
-                            onChange={e => handleStatusChange(o.id, e.target.value)}
+                            value={order.status}
+                            onChange={e => handleStatusChange(order.id, e.target.value)}
                             disabled={updating === o.id}
                             style={{ fontSize: 12, padding: '4px 8px' }}
                           >
@@ -199,30 +219,15 @@ export default function AdminOrders() {
               </table>
             </div>
           </div>
-          
-{selected.escalated && (
-  <div style={{ marginBottom: 16, padding: 12, background: 'var(--red-light)', borderRadius: 8, borderLeft: '4px solid var(--red)' }}>
-    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', marginBottom: 4 }}>Seller Requested Help</div>
-    <div style={{ fontSize: 13 }}>{selected.escalation_note}</div>
-    <div className="text-xs text-muted mt-4">{formatDate(selected.escalated_at)}</div>
-  </div>
-)}
-
-<button
-  className={`tab-item ${filter === 'escalated' ? 'tab-active' : ''}`}
-  onClick={() => setFilter('escalated')}
-  style={{ color: 'var(--red)' }}
->
-  Needs Attention
-  {orders.filter(o => o.escalated && o.status !== 'resolved').length > 0 && (
-    <span style={{ marginLeft: 6, background: 'var(--red)', color: 'white', fontSize: 11, padding: '1px 6px', borderRadius: 10, fontWeight: 700 }}>
-      {orders.filter(o => o.escalated && o.status !== 'resolved').length}
-    </span>
-  )}
-</button>
-
 
           {/* Detail panel */}
+          {selected.escalated && (
+  <div style={{ marginBottom: 16, padding: 12, background: 'var(--red-light)', borderRadius: 8, borderLeft: '4px solid var(--red)' }}>
+    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', marginBottom: 4 }}>Seller Requested Admin Help</div>
+    <div style={{ fontSize: 13 }}>{selected.escalation_note}</div>
+    <div className="text-xs text-muted" style={{ marginTop: 4 }}>{formatDate(selected.escalated_at)}</div>
+  </div>
+)}
           {selected && (
             <div className="card card-pad" style={{ position: 'sticky', top: 'calc(var(--nav-h) + 16px)' }}>
               <div className="flex-between mb-16">
@@ -297,7 +302,7 @@ export default function AdminOrders() {
                   Note: {selected.notes}
                 </div>
               )}
-
+          
               {/* Admin status control */}
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>Update Order Status</div>

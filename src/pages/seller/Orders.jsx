@@ -5,6 +5,7 @@ import { getSellerOrders, updateOrderStatus } from '../../lib/api'
 import { formatPrice, formatDate, orderStatusColor } from '../../lib/utils'
 import { Spinner, EmptyState, Avatar } from '../../components/shared'
 import { IconPackage } from '../../components/shared/Icons'
+import { sellerEscalateOrder } from '../../lib/api'
 
 export default function SellerOrders() {
   const { profile } = useAuth()
@@ -124,53 +125,39 @@ export default function SellerOrders() {
                       {order.status === 'accepted' && (
                         <button className="btn btn-primary btn-sm" onClick={() => handleAction(order.id, 'processing')}>Mark Processing</button>
                       )}
-                      {order.status === 'processing' && (
-                        <button className="btn btn-success btn-sm" onClick={() => handleAction(order.id, 'delivered')}>Mark Delivered</button>
+                      {o.status === 'processing' && (
+                        <button className="btn btn-success btn-sm" onClick={() => handleAction(o.id, 'delivered')}>Mark Delivered</button>
                       )}
                       {order.status === 'delivered' && (
-                        <button className="btn btn-success btn-sm" onClick={() => handleAction(order.id, 'completed')}>Complete</button>
+                        <button className="btn btn-success btn-sm" onClick={() => handleAction(o.id, 'completed')}>Complete</button>
                       )}
-                      {!['completed','rejected'].includes(o.status) && (
-  <button
-    className="btn btn-ghost btn-sm"
-    style={{ color: 'var(--red)', borderColor: 'var(--red)', marginTop: 4 }}
-    onClick={() => {
-      const note = prompt('Describe the issue for admin:')
-      if (note) {
-        import('../../lib/api').then(({ sellerEscalateOrder }) => {
-          sellerEscalateOrder(o.id, note)
-            .then(() => { toast('Request sent to admin', 'success'); load() })
-            .catch(err => toast(err.message, 'error'))
-        })
-      }
-    }}
-  >
-    Request Admin Help
-  </button>
-)}
+                      {!['completed','rejected'].includes(o.status) && !o.escalated && (
+                        <button
+                          className="btn btn-sm"
+                          style={{ color: 'var(--red)', border: '1px solid var(--red)', background: 'white', marginTop: 4 }}
+                          onClick={async () => {
+                            const note = window.prompt('Describe the issue you need admin help with:')
+                            if (!note) return
+                            try {
+                              await sellerEscalateOrder(o.id, note)
+                              toast('Request sent to admin', 'success')
+                              load()
+                            } catch (err) { toast(err.message, 'error') }
+                          }}
+                        >
+                          Request Admin Help
+                        </button>
+                      )}
+                      {order.escalated && (
+                        <div style={{ fontSize: 11, color: 'var(--red)', marginTop: 4, fontWeight: 600 }}>
+                          Admin notified
+                        </div>
+                      )}
                     </div>
-                    {!['completed','rejected'].includes(o.status) && (
-  <button
-    className="btn btn-ghost btn-sm"
-    style={{ color: 'var(--red)', borderColor: 'var(--red)', marginTop: 4 }}
-    onClick={() => {
-      const note = prompt('Describe the issue for admin:')
-      if (note) {
-        import('../../lib/api').then(({ sellerEscalateOrder }) => {
-          sellerEscalateOrder(o.id, note)
-            .then(() => { toast('Request sent to admin', 'success'); load() })
-            .catch(err => toast(err.message, 'error'))
-        })
-      }
-    }}
-  >
-    Request Admin Help
-  </button>
-)}
-
                   </div>
                 </div>
               </div>
+
             )
           })}
         </div>
