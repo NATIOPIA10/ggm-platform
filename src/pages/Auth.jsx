@@ -131,7 +131,7 @@ function StepBar({ current, total }) {
 export default function Auth() {
   const navigate      = useNavigate()
   const [searchParams] = useSearchParams()
-  const { signIn, signUp, profile, loading, signInWithGoogle } = useAuth()
+  const { signIn, signUp, profile, loading, signInWithGoogle, resetPassword } = useAuth()
   const { toast }     = useToast()
 
   const [tab, setTab] = useState(searchParams.get('tab') === 'register' ? 'register' : 'login')
@@ -141,6 +141,10 @@ export default function Auth() {
   const [loginPassword, setLoginPassword] = useState('')
   const [loginErrors,   setLoginErrors]   = useState({})
   const [submitting,    setSubmitting]    = useState(false)
+  const [forgotPwStep,  setForgotPwStep]  = useState(0) // 0: email, 1: otp
+  const [resetEmail,    setResetEmail]    = useState('')
+  const [resetOtp,      setResetOtp]      = useState('')
+  const [resetLoading,  setResetLoading]  = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
   // ── REGISTER MULTI-STEP STATE ──
@@ -385,10 +389,90 @@ async function handleLogin(e) {
               {loginErrors.email && <div className="form-error">{loginErrors.email}</div>}
             </div>
             <div className="form-group">
-              <label className="form-label">Password</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+                <button type="button" onClick={async () => {
+                  if (!loginEmail) return toast('Please enter your email address first', 'error');
+                  setResetLoading(true);
+                  try {
+                    // This will send an OTP if configured in Supabase, or a link.
+                    // We also use signInWithOtp as a fallback for 6-digit codes.
+                    const { error } = await supabase.auth.signInWithOtp({ 
+                      email: loginEmail,
+                      options: { shouldCreateUser: false } 
+                    });
+                    if (error) throw error;
+                    setResetEmail(loginEmail);
+                    setForgotPwStep(1);
+                    toast('6-digit code sent to your email', 'success');
+                  } catch (err) {
+                    toast(err.message || 'Failed to send code', 'error');
+                  } finally {
+                    setResetLoading(false);
+                  }
+                }} style={{ background: 'none', border: 'none', color: 'var(--brand)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }} disabled={resetLoading}>
+                  {resetLoading ? 'Sending...' : 'Forgot password?'}
+                </button>
+              </div>
               <input className={`form-input ${loginErrors.password ? 'error' : ''}`} type="password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} placeholder="........" />
               {loginErrors.password && <div className="form-error">{loginErrors.password}</div>}
             </div>
+
+            {forgotPwStep === 1 && (
+              <div style={{
+                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)'
+              }}>
+                <div style={{
+                  background: 'white', padding: 32, borderRadius: 20, width: '90%',
+                  maxWidth: 400, boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+                  textAlign: 'center', animation: 'zoomIn 0.3s ease'
+                }}>
+                  <h3 style={{ marginBottom: 12 }}>Enter 6-digit code</h3>
+                  <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24 }}>
+                    We sent a verification code to <b>{resetEmail}</b>
+                  </p>
+                  
+                  <OtpInput value={resetOtp} onChange={setResetOtp} />
+                  
+                  <button 
+                    type="button"
+                    className="btn btn-primary btn-full"
+                    style={{ marginTop: 28, height: 46 }}
+                    disabled={resetOtp.length !== 6 || resetLoading}
+                    onClick={async () => {
+                      setResetLoading(true);
+                      try {
+                        const { error } = await supabase.auth.verifyOtp({
+                          email: resetEmail,
+                          token: resetOtp,
+                          type: 'magiclink'
+                        });
+                        if (error) throw error;
+                        toast('Verification successful!', 'success');
+                        navigate('/auth/reset-password');
+                      } catch (err) {
+                        toast(err.message || 'Invalid code', 'error');
+                      } finally {
+                        setResetLoading(false);
+                      }
+                    }}
+                  >
+                    {resetLoading ? 'Verifying...' : 'Verify Code'}
+                  </button>
+                  
+                  <button 
+                    type="button"
+                    style={{ background: 'none', border: 'none', color: 'var(--gray-500)', fontSize: 13, marginTop: 16, cursor: 'pointer' }}
+                    onClick={() => setForgotPwStep(0)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
             <button type="submit" className="btn btn-primary btn-full" style={{ marginTop: 8, height: 44, fontSize: 15 }} disabled={submitting}>
               {submitting ? 'Signing in...' : 'Sign In'}
             </button>

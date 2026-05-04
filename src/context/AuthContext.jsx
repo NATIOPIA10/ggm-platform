@@ -145,6 +145,13 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  async function resetPassword(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/auth/reset-password',
+    })
+    if (error) throw error
+  }
+
   const value = {
     user,
     profile,
@@ -155,6 +162,7 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     handleGoogleUser,
     updateProfile,
+    resetPassword,
     refetchProfile: () => fetchProfile(user),
   }
 
