@@ -16,14 +16,30 @@ export default function ResetPassword() {
     if (password !== confirm) return toast('Passwords do not match', 'error')
 
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({ password })
-    
-    if (error) {
-      toast(error.message, 'error')
+    try {
+      // Check if we have a session (it should be set by Supabase from the URL hash)
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        toast('Session expired or invalid. Please request a new reset link.', 'error')
+        setLoading(false)
+        return
+      }
+
+      const { error } = await supabase.auth.updateUser({ password })
+      
+      if (error) {
+        toast(error.message, 'error')
+      } else {
+        toast('Password updated successfully!', 'success')
+        // Sign out to force a fresh login with the new password
+        await supabase.auth.signOut()
+        navigate('/auth', { replace: true })
+      }
+    } catch (err) {
+      toast(err.message || 'An unexpected error occurred', 'error')
+    } finally {
       setLoading(false)
-    } else {
-      toast('Password updated successfully!', 'success')
-      navigate('/auth', { replace: true })
     }
   }
 
