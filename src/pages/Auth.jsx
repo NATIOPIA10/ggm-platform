@@ -397,14 +397,15 @@ async function handleLogin(e) {
                   if (!loginEmail) return toast('Please enter your email address first', 'error');
                   setResetLoading(true);
                   try {
-                    // This will send an OTP if configured in Supabase, or a link.
-                    const { error } = await supabase.auth.resetPasswordForEmail(loginEmail, {
-                      redirectTo: window.location.origin + '/auth/reset-password'
+                    // This is the guaranteed way to send a 6-digit code if OTP is enabled.
+                    const { error } = await supabase.auth.signInWithOtp({ 
+                      email: loginEmail,
+                      options: { shouldCreateUser: false } 
                     });
                     if (error) throw error;
                     setResetEmail(loginEmail);
                     setForgotPwStep(1);
-                    toast('6-digit OTP sent to your email!', 'success');
+                    toast('6-digit code sent to your email!', 'success');
                   } catch (err) {
                     toast(err.message || 'Failed to send code', 'error');
                   } finally {
@@ -447,10 +448,10 @@ async function handleLogin(e) {
                         const { error } = await supabase.auth.verifyOtp({
                           email: resetEmail,
                           token: resetOtp,
-                          type: 'recovery'
+                          type: 'email'
                         });
                         if (error) throw error;
-                        toast('Verified! You can now reset your password.', 'success');
+                        toast('Verified! Please set your new password.', 'success');
                         navigate('/auth/reset-password');
                       } catch (err) {
                         toast(error.message || 'Invalid code', 'error');
@@ -468,7 +469,7 @@ async function handleLogin(e) {
                     onClick={async () => {
                       setResetLoading(true);
                       try {
-                        await supabase.auth.resetPasswordForEmail(resetEmail);
+                        await supabase.auth.signInWithOtp({ email: resetEmail, options: { shouldCreateUser: false } });
                         toast('Code resent!', 'success');
                       } catch (err) {
                         toast(err.message, 'error');
