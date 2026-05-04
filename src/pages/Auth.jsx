@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { CITIES } from '../lib/utils'
+import { supabase } from '../lib/supabase'
 import { IconUser, IconStore, IconCheck, IconChevronRight } from '../components/shared/Icons'
 
 // ── PASSWORD STRENGTH ──────────────────────────
