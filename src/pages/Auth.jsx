@@ -145,6 +145,7 @@ export default function Auth() {
   const [forgotPwStep,  setForgotPwStep]  = useState(0) // 0: email, 1: otp
   const [resetEmail,    setResetEmail]    = useState('')
   const [resetOtp,      setResetOtp]      = useState('')
+  const [manualOtp,     setManualOtp]     = useState('')
   const [resetLoading,  setResetLoading]  = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
@@ -395,22 +396,41 @@ async function handleLogin(e) {
                 <button type="button" onClick={async () => {
                   if (!loginEmail) return toast('Please enter your email address first', 'error');
                   setResetLoading(true);
+                  const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                  setResetOtp(generatedOtp); // This is the secret code we generated
+                  setResetEmail(loginEmail);
+                  
                   try {
-                    // This will send an OTP if configured in Supabase, or a link.
-                    const { error } = await supabase.auth.resetPasswordForEmail(loginEmail, {
-                      redirectTo: window.location.origin + '/auth/reset-password'
+                    // Send via EmailJS (using the same logic as registration)
+                    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        service_id:  'YOUR_SERVICE_ID',
+                        template_id: 'YOUR_TEMPLATE_ID',
+                        user_id:     'YOUR_PUBLIC_KEY',
+                        template_params: {
+                          to_email: loginEmail,
+                          otp_code: generatedOtp,
+                          type: 'Password Reset'
+                        }
+                      })
                     });
-                    if (error) throw error;
-                    setResetEmail(loginEmail);
+
+                    if (!response.ok) throw new Error('Failed to send email via EmailJS');
+                    
                     setForgotPwStep(1);
-                    toast('Verification code sent to your email', 'success');
+                    toast('6-digit OTP sent via EmailJS!', 'success');
                   } catch (err) {
-                    toast(err.message || 'Failed to send code', 'error');
+                    // Fallback: show in toast if EmailJS not configured
+                    console.error(err);
+                    toast(`Demo OTP: ${generatedOtp} (Configure EmailJS for production)`, 'info', 10000);
+                    setForgotPwStep(1);
                   } finally {
                     setResetLoading(false);
                   }
                 }} style={{ background: 'none', border: 'none', color: 'var(--brand)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }} disabled={resetLoading}>
-                  {resetLoading ? 'Sending...' : 'Forgot password?'}
+                  {resetLoading ? 'Sending OTP...' : 'Forgot password?'}
                 </button>
               </div>
               <input className={`form-input ${loginErrors.password ? 'error' : ''}`} type="password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} placeholder="........" />
@@ -433,26 +453,33 @@ async function handleLogin(e) {
                     We sent a verification code to <b>{resetEmail}</b>
                   </p>
                   
-                  <OtpInput value={resetOtp} onChange={setResetOtp} />
+                  <OtpInput value={manualOtp} onChange={setManualOtp} />
                   
+                  <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 16 }}>
+                    If you received a link instead of a code, just click the link in your email.
+                  </p>
+
                   <button 
                     type="button"
                     className="btn btn-primary btn-full"
-                    style={{ marginTop: 28, height: 46 }}
-                    disabled={resetOtp.length !== 6 || resetLoading}
+                    style={{ marginTop: 20, height: 46 }}
+                    disabled={manualOtp.length !== 6 || resetLoading}
                     onClick={async () => {
+                      if (manualOtp !== resetOtp) return toast('Incorrect code', 'error');
+                      
                       setResetLoading(true);
                       try {
-                        const { error } = await supabase.auth.verifyOtp({
-                          email: resetEmail,
-                          token: resetOtp,
-                          type: 'recovery'
+                        // To actually reset the password, we need a Supabase session.
+                        // We will trigger a Supabase reset request now, and since the user
+                        // already verified the manual OTP, we'll tell them to check for the final link.
+                        await supabase.auth.resetPasswordForEmail(resetEmail, {
+                          redirectTo: window.location.origin + '/auth/reset-password'
                         });
-                        if (error) throw error;
-                        toast('Verification successful!', 'success');
-                        navigate('/auth/reset-password');
+                        
+                        toast('Code verified! Please click the secure link sent to your email to set your new password.', 'success', 8000);
+                        setForgotPwStep(0);
                       } catch (err) {
-                        toast(err.message || 'Invalid code', 'error');
+                        toast(err.message, 'error');
                       } finally {
                         setResetLoading(false);
                       }
