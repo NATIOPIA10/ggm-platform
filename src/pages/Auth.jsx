@@ -463,6 +463,26 @@ async function handleLogin(e) {
                   
                   <button 
                     type="button"
+                    style={{ background: 'none', border: 'none', color: 'var(--brand)', fontSize: 13, marginTop: 16, cursor: 'pointer', fontWeight: 500, marginRight: 16 }}
+                    onClick={async () => {
+                      setResetLoading(true);
+                      try {
+                        await supabase.auth.resetPasswordForEmail(resetEmail, {
+                          redirectTo: window.location.origin + '/auth/reset-password'
+                        });
+                        toast('Code resent!', 'success');
+                      } catch (err) {
+                        toast(err.message, 'error');
+                      } finally {
+                        setResetLoading(false);
+                      }
+                    }}
+                  >
+                    Resend Code
+                  </button>
+                  
+                  <button 
+                    type="button"
                     style={{ background: 'none', border: 'none', color: 'var(--gray-500)', fontSize: 13, marginTop: 16, cursor: 'pointer' }}
                     onClick={() => setForgotPwStep(0)}
                   >
