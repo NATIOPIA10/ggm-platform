@@ -397,15 +397,13 @@ async function handleLogin(e) {
                   setResetLoading(true);
                   try {
                     // This will send an OTP if configured in Supabase, or a link.
-                    // We also use signInWithOtp as a fallback for 6-digit codes.
-                    const { error } = await supabase.auth.signInWithOtp({ 
-                      email: loginEmail,
-                      options: { shouldCreateUser: false } 
+                    const { error } = await supabase.auth.resetPasswordForEmail(loginEmail, {
+                      redirectTo: window.location.origin + '/auth/reset-password'
                     });
                     if (error) throw error;
                     setResetEmail(loginEmail);
                     setForgotPwStep(1);
-                    toast('6-digit code sent to your email', 'success');
+                    toast('Verification code sent to your email', 'success');
                   } catch (err) {
                     toast(err.message || 'Failed to send code', 'error');
                   } finally {
@@ -448,7 +446,7 @@ async function handleLogin(e) {
                         const { error } = await supabase.auth.verifyOtp({
                           email: resetEmail,
                           token: resetOtp,
-                          type: 'magiclink'
+                          type: 'recovery'
                         });
                         if (error) throw error;
                         toast('Verification successful!', 'success');
